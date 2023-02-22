@@ -23,6 +23,8 @@ func main() {
 	controller := newController(topic)
 	handler := newHandler(controller)
 
+	log.Printf("Listening on %s", port)
+
 	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatalf("http.ListenAndServe: %s", err)
 	}

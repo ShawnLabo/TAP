@@ -10,7 +10,7 @@ func newHandler(c *controller) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", c.root)
-	mux.HandleFunc("/dataSequence", c.postDataSequence)
+	mux.HandleFunc("/temperature", c.postTemperature)
 
 	return mux
 }

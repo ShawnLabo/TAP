@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+	"golang.org/x/sync/errgroup"
 )
 
 type controller struct {
@@ -29,32 +30,32 @@ func (c *controller) root(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, res)
 }
 
-type postDataSequenceRequest struct {
+type postTemperatureRequest struct {
 	Data []struct {
 		Timestamp time.Time `json:"timestamp"`
 		Value     string    `json:"value"`
 	} `json:"data"`
 }
 
-func (c *controller) postDataSequence(w http.ResponseWriter, r *http.Request) {
+func (c *controller) postTemperature(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		handleError(w, http.StatusBadRequest, fmt.Errorf("%s not allowed", r.Method))
 		return
 	}
 
-	req := &postDataSequenceRequest{}
+	req := &postTemperatureRequest{}
 
 	if err := decodeJSONBody(r, req); err != nil {
 		handleError(w, http.StatusInternalServerError, fmt.Errorf("decodeJSONBody: %w", err))
 		return
 	}
 
-	seq, err := dataSequenceFromRequest(req)
+	tl, err := temperatureListFromRequest(req)
 	if err != nil {
-		handleError(w, http.StatusBadRequest, fmt.Errorf("dataSequenceFromRequest: %w", err))
+		handleError(w, http.StatusBadRequest, fmt.Errorf("temperatureListFromRequest: %w", err))
 	}
 
-	if err := c.publish(r.Context(), seq); err != nil {
+	if err := c.publish(r.Context(), tl); err != nil {
 		handleError(w, http.StatusInternalServerError, fmt.Errorf("c.publish: %w", err))
 		return
 	}
@@ -62,40 +63,53 @@ func (c *controller) postDataSequence(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (c *controller) publish(ctx context.Context, seq *dataSequence) error {
-	bytes, err := json.Marshal(seq)
-	if err != nil {
-		return fmt.Errorf("json.Marshal: %w", err)
+func (c *controller) publish(ctx context.Context, tl []temperature) error {
+	eg, ctx := errgroup.WithContext(ctx)
+
+	for _, t := range tl {
+		t := t
+		eg.Go(func() error {
+			bytes, err := json.Marshal(t)
+			if err != nil {
+				return fmt.Errorf("json.Marshal: %w", err)
+			}
+
+			msg := &pubsub.Message{Data: bytes}
+			result := c.topic.Publish(ctx, msg)
+
+			id, err := result.Get(ctx)
+			if err != nil {
+				return fmt.Errorf("result.Get: %w", err)
+			}
+
+			log.Printf("Published message: id=%s", id)
+
+			return nil
+		})
 	}
 
-	msg := &pubsub.Message{Data: bytes}
-	result := c.topic.Publish(ctx, msg)
-
-	id, err := result.Get(ctx)
-	if err != nil {
-		return fmt.Errorf("result.Get: %w", err)
+	if err := eg.Wait(); err != nil {
+		return fmt.Errorf("eg.Wait: %w", err)
 	}
-
-	log.Printf("Published message: id=%s", id)
 
 	return nil
 }
 
-func dataSequenceFromRequest(req *postDataSequenceRequest) (*dataSequence, error) {
-	seq := &dataSequence{Data: []*data{}}
+func temperatureListFromRequest(req *postTemperatureRequest) ([]temperature, error) {
+	tl := []temperature{}
 
 	for _, rd := range req.Data {
-		d := &data{Timestamp: rd.Timestamp}
+		t := temperature{Timestamp: rd.Timestamp}
 
 		v, err := strconv.ParseFloat(rd.Value, 64)
 		if err != nil {
 			return nil, fmt.Errorf("strconv.ParseFloat: %w", err)
 		}
 
-		d.Value = v
+		t.Temperature = v
 
-		seq.Data = append(seq.Data, d)
+		tl = append(tl, t)
 	}
 
-	return seq, nil
+	return tl, nil
 }

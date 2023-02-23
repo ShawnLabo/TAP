@@ -2,6 +2,9 @@
 
 ## Run locally
 
+You need emulators or a actual cloud environment, which you can create with
+[terraform](https://github.com/ShawnLabo/TAP/tree/main/go/temperature-aggregation/terraform).
+
 Run receiver.
 
 ```sh
@@ -22,6 +25,18 @@ curl -i localhost:8080/temperature -X POST \
       {"timestamp": "2023-02-22T04:00:00Z", "value": "4.0"}
     ]
   }'
+```
+
+Run aggregator.
+
+```sh
+cd aggregator
+STORAGE_BUCKET_NAME="" \
+  BIGQUERY_PROJECT_ID="" \
+  BIGQUERY_DATASET_ID="" \
+  BIGQUERY_TABLE_ID="" \
+  DATASTORE_PROJECT_ID="" \
+  go run .
 ```
 
 ## References

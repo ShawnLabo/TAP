@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "Temperature",
+  "fields": [
+    {
+      "name": "timestamp",
+      "type": "string"
+    },
+    {
+      "name": "temperature",
+      "type": "double"
+    }
+  ]
+}

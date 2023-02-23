@@ -1,0 +1,38 @@
+[
+  {
+    "name": "subscription_name",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Name of a subscription"
+  },
+  {
+    "name": "message_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "ID of a Pub/Sub message"
+  },
+  {
+    "name": "publish_time",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "The time of publishing a message"
+  },
+  {
+    "name": "attributes",
+    "type": "JSON",
+    "mode": "REQUIRED",
+    "description": "A JSON object containing all message attributes"
+  },
+  {
+    "name": "timestamp",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Timestamp of measuring this record's temperature"
+  },
+  {
+    "name": "temperature",
+    "type": "FLOAT64",
+    "mode": "REQUIRED",
+    "description": "Measured temperature"
+  }
+]

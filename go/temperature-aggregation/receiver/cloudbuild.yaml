@@ -1,0 +1,26 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REPOSITORY}/receiver:${COMMIT_SHA}
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REPOSITORY}/receiver:${COMMIT_SHA}
+
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - run
+      - services
+      - update
+      - ${_RUN_SERVICE}
+      - --region
+      - ${_RUN_REGION}
+      - --image
+      - ${_REPOSITORY}/receiver:${COMMIT_SHA}
+
+options:
+  logging: CLOUD_LOGGING_ONLY

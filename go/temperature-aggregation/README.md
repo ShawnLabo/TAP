@@ -48,7 +48,7 @@ Solving the scenario:
 3. Aggregator app on Cloud Run jobs makes and uploads hourly files, querying BigQuery, which is
    triggered by Cloud Scheduler.
 
-![architecture](./architecture.svg)
+![architecture](./architecture.png)
 
 ## Run locally
 

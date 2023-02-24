@@ -123,15 +123,13 @@ gcloud builds list --project "<walkthrough-project-id />"
 Receiver の URL を取得します。
 
 ```sh
-RECEIVER_URL="$(gcloud run services describe receiver --project <walkthrough-project-id /> --region us-central1 --format "value(status.url)")"
+export RECEIVER_URL="$(gcloud run services describe receiver --project <walkthrough-project-id /> --region us-central1 --format "value(status.url)")"
 ```
 
 curl コマンドで擬似的な温度センサーのデータを送信します。
 
 ```sh
-curl -i "${RECEIVER_URL}/temperature" -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"data":[{"timestamp":"'$(date --utc --iso=sec)'","value":"0.0"},{"timestamp":"'$(date --utc --iso=sec)'","value":"1.0"},{"timestamp":"'$(date --utc --iso=sec)'","value": "2.0"},{"timestamp":"'$(date --utc --iso=sec)'","value":"3.0"},{"timestamp":"'$(date --utc --iso=sec)'","value":"4.0"}]}'
+./tutorial/post_data.sh
 ```
 
 ### **BigQuery でデータ確認**
@@ -139,10 +137,7 @@ curl -i "${RECEIVER_URL}/temperature" -X POST \
 BigQuery に送信したデータが格納されているか確認します。
 
 ```sh
-bq query \
-  --project_id="<walkthrough-project-id />" \
-  --use_legacy_sql=false \
-  'SELECT * FROM `<walkthrough-project-id />.raw_data.temperature` WHERE publish_time >= "'$(date --utc --iso)'"'
+./tutorial/query.sh "<walkthrough-project-id />"
 ```
 
 Aggregator を手動で実行します。

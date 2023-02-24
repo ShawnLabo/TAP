@@ -1,5 +1,12 @@
 # Temperature Aggregation
 
+## Tutorial on Cloud Shell
+
+(Japanese Only)
+
+[![Cloud Shell で開く](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2FShawnLabo%2FTAP&cloudshell_git_branch=main&cloudshell_workspace=go%2Ftemperature-aggregation&cloudshell_tutorial=TUTORIAL.ja.md)
+
+
 ## Scenario
 
 The edge themometers can call REST API and its request bodies contain data points of measured

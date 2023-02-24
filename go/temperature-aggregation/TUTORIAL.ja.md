@@ -116,7 +116,7 @@ gcloud builds list --project "<walkthrough-project-id />"
 
 ## テスト
 
-<walkthrough-tutorial-duration duration=999></walkthrough-tutorial-duration>
+<walkthrough-tutorial-duration duration=5></walkthrough-tutorial-duration>
 
 ### **温度センサーデータの送信**
 

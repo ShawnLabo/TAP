@@ -38,12 +38,20 @@ data "google_project" "project" {
  * Enable APIs that Temperature Aggregation uses.
  */
 
+resource "google_project_service" "artifactregistry" {
+  service = "artifactregistry.googleapis.com"
+}
+
 resource "google_project_service" "bigquery" {
   service = "bigquery.googleapis.com"
 }
 
 resource "google_project_service" "cloudbuild" {
-  service = "artifactregistry.googleapis.com"
+  service = "cloudbuild.googleapis.com"
+}
+
+resource "google_project_service" "cloudscheduler" {
+  service = "cloudscheduler.googleapis.com"
 }
 
 resource "google_project_service" "iam" {
@@ -225,6 +233,8 @@ resource "google_cloud_run_service" "receiver" {
     }
   }
 
+  depends_on = [google_project_service.run]
+
   lifecycle {
     ignore_changes = [
       template[0].spec[0].containers[0].image
@@ -308,6 +318,8 @@ resource "google_cloud_run_v2_job" "aggregator" {
     }
   }
 
+  depends_on = [google_project_service.run]
+
   lifecycle {
     ignore_changes = [
       template[0].template[0].containers[0].image
@@ -343,6 +355,8 @@ resource "google_cloud_scheduler_job" "aggregator-scheduler" {
       service_account_email = google_service_account.aggregator-scheduler.email
     }
   }
+
+  depends_on = [google_project_service.cloudscheduler]
 }
 
 resource "google_storage_bucket" "temperature" {
@@ -369,7 +383,7 @@ resource "google_storage_bucket_iam_member" "aggregator-objectCreator" {
  */
 
 resource "google_sourcerepo_repository" "temperature-aggregation" {
-  name = "temeperature-aggregation"
+  name = "temperature-aggregation"
 
   depends_on = [google_project_service.sourcerepo]
 }
@@ -397,6 +411,8 @@ resource "google_artifact_registry_repository" "receiver" {
   location      = var.region
   repository_id = "receiver"
   format        = "DOCKER"
+
+  depends_on = [google_project_service.artifactregistry]
 }
 
 resource "google_artifact_registry_repository_iam_member" "receiver-build-writer" {
@@ -417,6 +433,8 @@ resource "google_artifact_registry_repository" "aggregator" {
   location      = var.region
   repository_id = "aggregator"
   format        = "DOCKER"
+
+  depends_on = [google_project_service.artifactregistry]
 }
 
 resource "google_artifact_registry_repository_iam_member" "aggregator-build-writer" {
@@ -467,6 +485,8 @@ resource "google_cloudbuild_trigger" "receiver-build" {
     _RUN_REGION  = google_cloud_run_service.receiver.location
     _RUN_SERVICE = google_cloud_run_service.receiver.name
   }
+
+  depends_on = [google_project_service.cloudbuild]
 }
 
 resource "google_service_account" "aggregator-build" {
@@ -498,4 +518,6 @@ resource "google_cloudbuild_trigger" "aggregator-build" {
     _RUN_REGION = google_cloud_run_v2_job.aggregator.location
     _RUN_JOB    = google_cloud_run_v2_job.aggregator.name
   }
+
+  depends_on = [google_project_service.cloudbuild]
 }

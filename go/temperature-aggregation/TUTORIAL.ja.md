@@ -3,7 +3,7 @@
 温度センサーのデータを Cloud Run にデプロイした REST API で収集して BigQuery
 に格納し、他システムとの連携のためにそのデータを 1 時間ごとのファイルにまとめるデモです。
 
-詳細なアーキテクチャ等は README を参照してください。
+詳細なアーキテクチャ等は [README](https://github.com/ShawnLabo/TAP/tree/main/go/temperature-aggregation#architecture) を参照してください。
 
 ## プロジェクトの選択
 

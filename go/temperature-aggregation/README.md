@@ -1,5 +1,7 @@
 # Temperature Aggregation
 
+**Moved to [ShawnLabo/google-cloud-examples](https://github.com/ShawnLabo/google-cloud-examples/tree/main/go/temperature-aggregation)**
+
 ## Tutorial on Cloud Shell
 
 (Japanese Only)
